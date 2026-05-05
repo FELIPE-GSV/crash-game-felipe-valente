@@ -5,18 +5,41 @@
   "scripts": {
     "dev": "bun run --watch src/main.ts",
     "start": "bun run src/main.ts",
+    "build": "bun build ./src/main.ts --target=bun --outdir=./dist",
     "test": "bun test tests/unit",
-    "test:e2e": "bun test tests/e2e"
+    "test:e2e": "bun test tests/e2e",
+    "typeorm": "typeorm-ts-node-commonjs -d src/infrastructure/database/data-source.ts",
+    "migration:generate": "bun run typeorm migration:generate src/infrastructure/database/migrations/Migration",
+    "migration:create": "typeorm-ts-node-commonjs migration:create src/infrastructure/database/migrations/Migration",
+    "migration:run": "bun run typeorm migration:run",
+    "migration:revert": "bun run typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.17",
     "@nestjs/core": "^11.1.17",
+    "@nestjs/microservices": "^11.1.17",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.17",
+    "@nestjs/swagger": "^11.0.0",
+    "@nestjs/typeorm": "^11.0.0",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.4",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "jwks-rsa": "^3.1.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
+    "@types/passport-jwt": "^4.0.1",
+    "@types/pg": "^8.11.10",
     "bun-types": "latest",
+    "supertest": "^7.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }

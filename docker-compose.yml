@@ -1,7 +1,4 @@
 services:
-  # ---------------------------------------------------------------------------
-  # PostgreSQL 18
-  # ---------------------------------------------------------------------------
   postgres:
     image: postgres:18.3-alpine
     ports:
@@ -12,17 +9,14 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_EXTRA_DATABASES: games,wallets
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  # ---------------------------------------------------------------------------
-  # RabbitMQ (with management UI)
-  # ---------------------------------------------------------------------------
   rabbitmq:
     image: rabbitmq:4.2.4-management-alpine
     ports:
@@ -39,9 +33,6 @@ services:
       timeout: 5s
       retries: 10
 
-  # ---------------------------------------------------------------------------
-  # Keycloak (Identity Provider)
-  # ---------------------------------------------------------------------------
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.5
     command: start-dev --import-realm
@@ -60,9 +51,6 @@ services:
       retries: 15
       start_period: 30s
 
-  # ---------------------------------------------------------------------------
-  # Kong (API Gateway — DB-less / declarative)
-  # ---------------------------------------------------------------------------
   kong:
     image: kong:3.9.1
     ports:
@@ -90,9 +78,6 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  # ---------------------------------------------------------------------------
-  # Games Service
-  # ---------------------------------------------------------------------------
   games:
     build:
       context: ./services/games
@@ -113,9 +98,6 @@ services:
       retries: 10
       start_period: 15s
 
-  # ---------------------------------------------------------------------------
-  # Wallets Service
-  # ---------------------------------------------------------------------------
   wallets:
     build:
       context: ./services/wallets
@@ -136,9 +118,6 @@ services:
       retries: 10
       start_period: 15s
 
-  # ---------------------------------------------------------------------------
-  # Frontend (placeholder — candidate implements)
-  # ---------------------------------------------------------------------------
   # frontend:
   #   build:
   #     context: ./frontend
