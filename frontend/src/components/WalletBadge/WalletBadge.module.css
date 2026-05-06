@@ -1,0 +1,27 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: var(--radius-full);
+  transition: border-color var(--transition-fast);
+}
+
+.badge:hover {
+  border-color: rgba(212, 175, 55, 0.6);
+}
+
+.icon {
+  font-size: var(--text-base);
+  line-height: 1;
+}
+
+.balance {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gold);
+  letter-spacing: 0.02em;
+}
