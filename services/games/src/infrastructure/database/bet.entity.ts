@@ -38,6 +38,6 @@ export class BetEntity {
   @CreateDateColumn({ name: "placed_at" })
   placedAt!: Date;
 
-  @ManyToOne(() => RoundEntity, (round) => round.bets)
+  @ManyToOne(() => RoundEntity)
   round!: RoundEntity;
 }
