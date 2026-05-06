@@ -5,7 +5,7 @@ let socket: Socket | null = null;
 export function getSocket(token: string): Socket {
   if (socket?.connected) return socket;
 
-  socket = io('/ws', {
+  socket = io('/', {
     path: '/socket.io',
     auth: { token },
     transports: ['websocket'],

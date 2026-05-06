@@ -1,66 +1,68 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from './useSocket';
-import { getMyWallet, createWallet, centsToReais } from '../services/walletService';
+import { getMyWallet, createWallet, centsToReais, type WalletResponse } from '../services/walletService';
+
+export const WALLET_KEY = ['wallet'] as const;
 
 export interface UseWalletReturn {
   balance: number;
   isLoading: boolean;
   error: string | null;
   refetch: () => void;
-  updateBalance: (delta: number) => void;
+  /** delta em Reais (positivo = crédito, negativo = débito) */
+  updateBalance: (deltaReais: number) => void;
 }
 
 export function useWallet(): UseWalletReturn {
   const socket = useSocket();
-  const [balance, setBalance] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const isMounted = useRef(true);
+  const queryClient = useQueryClient();
 
-  const fetchBalance = useCallback(async () => {
-    try {
-      setError(null);
-      let wallet;
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: WALLET_KEY,
+    queryFn: async (): Promise<WalletResponse> => {
       try {
-        wallet = await getMyWallet();
+        return await getMyWallet();
       } catch (err: unknown) {
         const status = (err as { response?: { status?: number } })?.response?.status;
-        if (status === 404) {
-          wallet = await createWallet();
-        } else {
-          throw err;
-        }
+        if (status === 404) return await createWallet();
+        throw err;
       }
-      if (isMounted.current) {
-        setBalance(centsToReais(wallet.balance));
-      }
-    } catch {
-      if (isMounted.current) setError('Erro ao carregar saldo');
-    } finally {
-      if (isMounted.current) setIsLoading(false);
-    }
-  }, []);
+    },
+    staleTime: Infinity,
+    retry: 1,
+  });
 
-  useEffect(() => {
-    isMounted.current = true;
-    fetchBalance();
-    return () => { isMounted.current = false; };
-  }, [fetchBalance]);
-
+  // Invalidate após eventos que alteram o saldo no servidor
   useEffect(() => {
     if (!socket) return;
-    const onUpdate = () => fetchBalance();
-    socket.on('bet:cashedout', onUpdate);
-    socket.on('bet:placed', onUpdate);
+    const invalidate = () => queryClient.invalidateQueries({ queryKey: WALLET_KEY });
+    socket.on('bet:cashedout', invalidate);
+    socket.on('bet:placed', invalidate);
+    socket.on('connect', invalidate);
     return () => {
-      socket.off('bet:cashedout', onUpdate);
-      socket.off('bet:placed', onUpdate);
+      socket.off('bet:cashedout', invalidate);
+      socket.off('bet:placed', invalidate);
+      socket.off('connect', invalidate);
     };
-  }, [socket, fetchBalance]);
+  }, [socket, queryClient]);
 
-  const updateBalance = useCallback((delta: number) => {
-    setBalance((prev) => Math.max(0, prev + delta));
-  }, []);
+  // Atualização otimista: modifica diretamente o cache sem ir ao servidor
+  const updateBalance = useCallback((deltaReais: number) => {
+    queryClient.setQueryData<WalletResponse>(WALLET_KEY, (old) => {
+      if (!old) return old;
+      const current = BigInt(old.balance);
+      const delta = BigInt(Math.round(deltaReais * 100));
+      const next = current + delta;
+      return { ...old, balance: String(next < 0n ? 0n : next) };
+    });
+  }, [queryClient]);
 
-  return { balance, isLoading, error, refetch: fetchBalance, updateBalance };
+  return {
+    balance: data ? centsToReais(data.balance) : 0,
+    isLoading,
+    error: error ? 'Erro ao carregar saldo' : null,
+    refetch,
+    updateBalance,
+  };
 }

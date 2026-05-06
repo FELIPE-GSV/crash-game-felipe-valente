@@ -43,6 +43,7 @@ export function HomePage() {
             <BetPanel
               gameStatus={game.status}
               multiplier={game.multiplier}
+              roundId={game.roundId}
               onToast={addToast}
             />
           </div>

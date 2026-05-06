@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 import { Card } from '../Card/Card';
 import { Button } from '../Button/Button';
@@ -14,6 +14,7 @@ type PanelStatus = 'betting' | 'waiting' | 'running' | 'idle';
 interface BetPanelProps {
   gameStatus: 'waiting' | 'running' | 'crashed';
   multiplier: number;
+  roundId: string | null;
   className?: string;
   onToast?: (msg: string, type: 'success' | 'error' | 'info') => void;
 }
@@ -21,45 +22,51 @@ interface BetPanelProps {
 const MIN_AMOUNT = 1;
 const MAX_AMOUNT = 1000;
 
-export function BetPanel({ gameStatus, multiplier, className, onToast }: BetPanelProps) {
+export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }: BetPanelProps) {
   const socket = useSocket();
   const { user } = useAuth();
   const { updateBalance } = useWalletContext();
 
   const [amount, setAmount] = useState('10.00');
-  const [panelStatus, setPanelStatus] = useState<PanelStatus>('betting');
   const [isLoading, setIsLoading] = useState(false);
   const [amountError, setAmountError] = useState<string | null>(null);
   const [cashoutGain, setCashoutGain] = useState<number | null>(null);
 
-  // Sync panel status with game status
-  useEffect(() => {
-    if (gameStatus === 'crashed') {
-      setPanelStatus('betting');
-    } else if (gameStatus === 'waiting' && panelStatus !== 'waiting') {
-      // only reset to betting if we weren't waiting for round start
-      if (panelStatus !== 'waiting') setPanelStatus('betting');
-    } else if (gameStatus === 'running' && panelStatus === 'waiting') {
-      setPanelStatus('running');
-    } else if (gameStatus === 'running' && panelStatus === 'betting') {
-      setPanelStatus('idle');
-    }
-  }, [gameStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Rastreia qual roundId tem aposta ativa e se já sacou
+  const [activeBetRoundId, setActiveBetRoundId] = useState<string | null>(null);
+  const [hasCashedOut, setHasCashedOut] = useState(false);
 
-  // Listen to bet events for this player
+  // Deriva o status do painel a partir do estado do jogo + apostas do jogador
+  const panelStatus: PanelStatus = useMemo(() => {
+    if (gameStatus === 'crashed') return 'betting';
+    if (gameStatus === 'waiting') return activeBetRoundId ? 'waiting' : 'betting';
+    // running
+    if (activeBetRoundId && !hasCashedOut) return 'running';
+    return 'idle';
+  }, [gameStatus, activeBetRoundId, hasCashedOut]);
+
+  // Reseta estado ao iniciar nova rodada
+  useEffect(() => {
+    if (gameStatus === 'waiting') {
+      setActiveBetRoundId(null);
+      setHasCashedOut(false);
+    }
+  }, [roundId, gameStatus]);
+
+  // Eventos de socket específicos do jogador
   useEffect(() => {
     if (!socket || !user) return;
 
-    function onBetPlaced(data: { playerId: string }) {
+    function onBetPlaced(data: { playerId: string; roundId: string }) {
       if (data.playerId !== user!.id) return;
-      setPanelStatus('waiting');
+      setActiveBetRoundId(data.roundId);
     }
 
     function onCashedOut(data: { playerId: string; multiplier: number; payoutCents: number }) {
       if (data.playerId !== user!.id) return;
+      setHasCashedOut(true);
       const gained = centsToReais(data.payoutCents);
       setCashoutGain(gained);
-      setPanelStatus('idle');
       setTimeout(() => setCashoutGain(null), 1500);
     }
 
@@ -91,54 +98,55 @@ export function BetPanel({ gameStatus, multiplier, className, onToast }: BetPane
     setIsLoading(true);
     try {
       await placeBet(val);
+      // Atualização otimista: débito imediato enquanto aguarda confirmação do servidor
       updateBalance(-val);
       onToast?.(`Aposta de R$ ${val.toFixed(2)} feita!`, 'info');
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      const text = msg?.includes('insufficient') ? 'Saldo insuficiente' : 'Erro ao apostar';
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? '';
+      const text = msg.toLowerCase().includes('insufficient') || msg.toLowerCase().includes('saldo')
+        ? 'Saldo insuficiente'
+        : 'Erro ao apostar. Tente novamente.';
       onToast?.(text, 'error');
     } finally {
       setIsLoading(false);
     }
-  }, [amount, updateBalance, onToast]); // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount, updateBalance, onToast]);
 
   const handleCashout = useCallback(async () => {
     setIsLoading(true);
     try {
       const bet = await cashout();
       const payout = centsToReais(bet.payout ?? '0');
-      const gained = payout - centsToReais(bet.amount);
+      const betAmount = centsToReais(bet.amount);
+      const gained = payout - betAmount;
+      // Atualização otimista: crédito imediato do payout
       updateBalance(payout);
-      onToast?.(`Sacou R$ ${payout.toFixed(2)} em ${multiplier.toFixed(2)}×!`, 'success');
       setCashoutGain(gained);
       setTimeout(() => setCashoutGain(null), 1500);
+      onToast?.(`Sacou R$ ${payout.toFixed(2)} em ${bet.cashoutMultiplier?.toFixed(2) ?? multiplier.toFixed(2)}×!`, 'success');
     } catch {
-      onToast?.('Erro ao sacar', 'error');
+      onToast?.('Erro ao sacar. Tente novamente.', 'error');
     } finally {
       setIsLoading(false);
     }
   }, [multiplier, updateBalance, onToast]);
 
   function decrement() {
-    const current = parseFloat(amount) || 0;
-    setAmount(Math.max(MIN_AMOUNT, current - 5).toFixed(2));
+    setAmount((prev) => Math.max(MIN_AMOUNT, (parseFloat(prev) || 0) - 5).toFixed(2));
     setAmountError(null);
   }
   function increment() {
-    const current = parseFloat(amount) || 0;
-    setAmount(Math.min(MAX_AMOUNT, current + 5).toFixed(2));
+    setAmount((prev) => Math.min(MAX_AMOUNT, (parseFloat(prev) || 0) + 5).toFixed(2));
     setAmountError(null);
   }
   function double() {
-    const current = parseFloat(amount) || 0;
-    setAmount(Math.min(MAX_AMOUNT, current * 2).toFixed(2));
+    setAmount((prev) => Math.min(MAX_AMOUNT, (parseFloat(prev) || 0) * 2).toFixed(2));
     setAmountError(null);
   }
 
   const canBet = panelStatus === 'betting' && !isLoading;
   const canCashout = panelStatus === 'running' && !isLoading;
-
-  // Cashout button intensity: lerp color from orange→red as multiplier rises
   const cashoutDanger = Math.min(1, (multiplier - 1) / 9);
 
   return (
@@ -161,9 +169,7 @@ export function BetPanel({ gameStatus, multiplier, className, onToast }: BetPane
               disabled={panelStatus !== 'betting'}
               className={styles.stepBtn}
               aria-label="Diminuir valor"
-            >
-              −
-            </Button>
+            >−</Button>
             <Input
               value={amount}
               onChange={(e) => { setAmount(e.target.value); setAmountError(null); }}
@@ -179,39 +185,30 @@ export function BetPanel({ gameStatus, multiplier, className, onToast }: BetPane
               disabled={panelStatus !== 'betting'}
               className={styles.stepBtn}
               aria-label="Aumentar valor"
-            >
-              +
-            </Button>
+            >+</Button>
             <Button
               variant="secondary"
               size="sm"
               onClick={double}
               disabled={panelStatus !== 'betting'}
-            >
-              Dobrar
-            </Button>
+            >Dobrar</Button>
           </div>
         </div>
 
         <div className={styles.actionArea}>
-          {/* APOSTAR */}
           {(panelStatus === 'betting' || panelStatus === 'waiting') && (
             <Button
               variant="primary"
               size="lg"
-              className={clsx(
-                styles.betButton,
-                panelStatus === 'betting' && styles.betButtonActive,
-              )}
+              className={clsx(styles.betButton, panelStatus === 'betting' && styles.betButtonActive)}
               onClick={handleBet}
               disabled={!canBet}
               loading={isLoading && panelStatus === 'betting'}
             >
-              {panelStatus === 'waiting' ? 'AGUARDANDO...' : 'APOSTAR'}
+              {panelStatus === 'waiting' ? 'AGUARDANDO INÍCIO...' : 'APOSTAR'}
             </Button>
           )}
 
-          {/* SACAR */}
           {(panelStatus === 'running' || panelStatus === 'idle') && (
             <Button
               variant="primary"
@@ -222,12 +219,13 @@ export function BetPanel({ gameStatus, multiplier, className, onToast }: BetPane
               disabled={!canCashout}
               loading={isLoading && panelStatus === 'running'}
             >
-              {panelStatus === 'idle' ? 'AGUARDANDO PRÓXIMA RODADA' : `SACAR ${multiplier.toFixed(2)}×`}
+              {panelStatus === 'idle'
+                ? 'AGUARDANDO PRÓXIMA RODADA'
+                : `SACAR ${multiplier.toFixed(2)}×`}
             </Button>
           )}
         </div>
 
-        {/* Cashout gain animation */}
         {cashoutGain !== null && (
           <div className={styles.gainPopup} aria-live="polite">
             +{cashoutGain.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}

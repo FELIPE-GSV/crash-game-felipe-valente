@@ -1,12 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from './useSocket';
 import { useAuth } from './useAuth';
-import { getMyBets, centsToReais } from '../services/betService';
+import { getMyBets, centsToReais, type BetResponse } from '../services/betService';
 import type { BetHistoryEntry } from '../components/BetHistoryCard/BetHistoryCard';
+
+export const BETS_KEY = ['bets'] as const;
 
 const MAX_ENTRIES = 50;
 
-function mapBet(bet: { id: string; cashoutMultiplier: number | null; amount: string; payout: string | null; status: string }, index: number): BetHistoryEntry {
+function mapBet(bet: BetResponse, index: number): BetHistoryEntry {
   const won = bet.status === 'cashed_out';
   const amount = centsToReais(bet.amount);
   const payout = bet.payout ? centsToReais(bet.payout) : 0;
@@ -23,67 +26,74 @@ function mapBet(bet: { id: string; cashoutMultiplier: number | null; amount: str
 export function useBetHistory() {
   const socket = useSocket();
   const { user } = useAuth();
-  const [entries, setEntries] = useState<BetHistoryEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const isMounted = useRef(true);
+  const queryClient = useQueryClient();
 
-  const fetchHistory = useCallback(async () => {
-    try {
-      const bets = await getMyBets();
-      if (isMounted.current) {
-        setEntries(bets.slice(0, MAX_ENTRIES).map(mapBet));
-      }
-    } catch {
-      // silent — history is non-critical
-    } finally {
-      if (isMounted.current) setIsLoading(false);
-    }
-  }, []);
+  // Entradas otimistas adicionadas via socket (aparecem imediatamente)
+  const [optimisticEntries, setOptimisticEntries] = useState<BetHistoryEntry[]>([]);
 
-  useEffect(() => {
-    isMounted.current = true;
-    fetchHistory();
-    return () => { isMounted.current = false; };
-  }, [fetchHistory]);
+  const { data, isLoading } = useQuery({
+    queryKey: BETS_KEY,
+    queryFn: getMyBets,
+    staleTime: Infinity,
+    retry: 1,
+  });
 
   useEffect(() => {
     if (!socket || !user) return;
 
-    function addNewEntry(entry: BetHistoryEntry) {
-      setEntries((prev) => {
-        const updated = [{ ...entry, isNew: true }, ...prev].slice(0, MAX_ENTRIES);
-        // clear isNew flag after animation duration
-        setTimeout(() => {
-          setEntries((cur) => cur.map((e) => (e.id === entry.id ? { ...e, isNew: false } : e)));
-        }, 500);
-        return updated;
-      });
-    }
+    function onCashedOut(event: { playerId: string; multiplier: number; payoutCents: number }) {
+      if (event.playerId !== user!.id) return;
 
-    function onCashedOut(data: { playerId: string; multiplier: number; payoutCents: number; roundId: string }) {
-      if (data.playerId !== user!.id) return;
-      addNewEntry({
+      const entry: BetHistoryEntry = {
         id: Date.now(),
-        multiplier: data.multiplier,
-        amount: 0, // will be updated on next full fetch
-        profit: centsToReais(data.payoutCents),
+        multiplier: event.multiplier,
+        amount: 0,
+        profit: centsToReais(event.payoutCents),
         won: true,
         isNew: true,
-      });
+      };
+
+      setOptimisticEntries((prev) => [entry, ...prev]);
+
+      // Remove flag isNew após animação
+      setTimeout(() => {
+        setOptimisticEntries((prev) =>
+          prev.map((e) => (e.id === entry.id ? { ...e, isNew: false } : e)),
+        );
+      }, 400);
+
+      // Invalida para buscar dados precisos (amount real) em background
+      queryClient.invalidateQueries({ queryKey: BETS_KEY });
     }
 
     function onCrashed() {
-      // refetch so lost bets show up accurately
-      fetchHistory();
+      // Após crash, invalida para incluir apostas perdidas com dados corretos
+      queryClient.invalidateQueries({ queryKey: BETS_KEY });
+    }
+
+    function onConnect() {
+      queryClient.invalidateQueries({ queryKey: BETS_KEY });
     }
 
     socket.on('bet:cashedout', onCashedOut);
     socket.on('round:crashed', onCrashed);
+    socket.on('connect', onConnect);
     return () => {
       socket.off('bet:cashedout', onCashedOut);
       socket.off('round:crashed', onCrashed);
+      socket.off('connect', onConnect);
     };
-  }, [socket, user, fetchHistory]);
+  }, [socket, user, queryClient]);
+
+  // Quando o React Query retorna dados frescos, limpa entradas otimistas duplicadas
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setOptimisticEntries([]);
+    }
+  }, [data]);
+
+  const serverEntries = (data ?? []).slice(0, MAX_ENTRIES).map(mapBet);
+  const entries = [...optimisticEntries, ...serverEntries].slice(0, MAX_ENTRIES);
 
   return { entries, isLoading };
 }
