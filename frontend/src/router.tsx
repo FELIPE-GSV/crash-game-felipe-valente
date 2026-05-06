@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import { WalletProvider } from './context/WalletContext';
 import { LoginPage } from './pages/LoginPage';
 import { HomePage } from './pages/HomePage';
 
@@ -18,7 +19,11 @@ function ProtectedRoute() {
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  return <Outlet />;
+  return (
+    <WalletProvider>
+      <Outlet />
+    </WalletProvider>
+  );
 }
 
 export const router = createBrowserRouter([

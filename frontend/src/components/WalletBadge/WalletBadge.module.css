@@ -6,16 +6,41 @@
   background: rgba(212, 175, 55, 0.1);
   border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: var(--radius-full);
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .badge:hover {
   border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: var(--shadow-glow-gold);
+}
+
+/* Flash verde: saldo aumentou (cashout ganho) */
+.flashUp {
+  animation: balance-up 0.8s ease-out forwards;
+}
+
+/* Flash laranja: saldo diminuiu (aposta feita) */
+.flashDown {
+  animation: balance-down 0.6s ease-out forwards;
+}
+
+@keyframes balance-up {
+  0%   { box-shadow: none; border-color: rgba(212, 175, 55, 0.3); }
+  35%  { box-shadow: var(--shadow-glow-green); border-color: var(--color-success); }
+  100% { box-shadow: none; border-color: rgba(212, 175, 55, 0.3); }
+}
+
+@keyframes balance-down {
+  0%   { box-shadow: none; border-color: rgba(212, 175, 55, 0.3); }
+  35%  { box-shadow: var(--shadow-glow); border-color: var(--color-primary); }
+  100% { box-shadow: none; border-color: rgba(212, 175, 55, 0.3); }
 }
 
 .icon {
-  font-size: var(--text-base);
-  line-height: 1;
+  width: 16px;
+  height: 16px;
+  color: var(--color-gold);
+  flex-shrink: 0;
 }
 
 .balance {
@@ -24,4 +49,28 @@
   font-weight: var(--font-weight-medium);
   color: var(--color-gold);
   letter-spacing: 0.02em;
+}
+
+/* Skeleton loader */
+.skeleton {
+  pointer-events: none;
+}
+
+.skeletonInner {
+  width: 90px;
+  height: 16px;
+  border-radius: var(--radius-xs);
+  background: linear-gradient(
+    90deg,
+    rgba(212, 175, 55, 0.08) 0%,
+    rgba(212, 175, 55, 0.2) 50%,
+    rgba(212, 175, 55, 0.08) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }

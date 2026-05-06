@@ -8,14 +8,26 @@ export interface BetHistoryEntry {
   amount: number;
   profit: number;
   won: boolean;
+  isNew?: boolean;
 }
 
 interface BetHistoryCardProps {
   entries: BetHistoryEntry[];
+  isLoading?: boolean;
   className?: string;
 }
 
-export function BetHistoryCard({ entries, className }: BetHistoryCardProps) {
+function SkeletonRow() {
+  return (
+    <div className={styles.skeletonRow}>
+      <div className={clsx(styles.skeletonCell, styles.skeletonShort)} />
+      <div className={clsx(styles.skeletonCell, styles.skeletonMid)} />
+      <div className={clsx(styles.skeletonCell, styles.skeletonShort)} />
+    </div>
+  );
+}
+
+export function BetHistoryCard({ entries, isLoading, className }: BetHistoryCardProps) {
   return (
     <Card variant="default" className={clsx(styles.container, className)}>
       <div className={styles.header}>
@@ -24,13 +36,24 @@ export function BetHistoryCard({ entries, className }: BetHistoryCardProps) {
       </div>
 
       <div className={styles.list}>
-        {entries.map((entry) => (
-          <div key={entry.id} className={clsx(styles.row, entry.won ? styles.won : styles.lost)}>
+        {isLoading && [1, 2, 3, 4].map((n) => <SkeletonRow key={n} />)}
+
+        {!isLoading && entries.map((entry) => (
+          <div
+            key={entry.id}
+            className={clsx(
+              styles.row,
+              entry.won ? styles.won : styles.lost,
+              entry.isNew && styles.rowNew,
+            )}
+          >
             <span className={clsx(styles.multiplier, entry.won ? styles.multiplierWon : styles.multiplierLost)}>
-              {entry.multiplier.toFixed(2)}×
+              {entry.multiplier > 0 ? `${entry.multiplier.toFixed(2)}×` : '1.00×'}
             </span>
             <span className={styles.amount}>
-              R$ {entry.amount.toFixed(2)}
+              {entry.amount > 0
+                ? entry.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                : '—'}
             </span>
             <span className={clsx(styles.profit, entry.won ? styles.profitWon : styles.profitLost)}>
               {entry.won ? '+' : ''}
@@ -39,7 +62,7 @@ export function BetHistoryCard({ entries, className }: BetHistoryCardProps) {
           </div>
         ))}
 
-        {entries.length === 0 && (
+        {!isLoading && entries.length === 0 && (
           <p className={styles.empty}>Nenhuma aposta ainda.</p>
         )}
       </div>

@@ -1,0 +1,116 @@
+.container {
+  position: fixed;
+  bottom: var(--spacing-xl);
+  right: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  z-index: var(--z-toast);
+  pointer-events: none;
+  max-width: 360px;
+  width: calc(100vw - 2 * var(--spacing-xl));
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  pointer-events: all;
+  animation: toast-in 0.25s ease-out;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Type variants */
+.success {
+  background: rgba(57, 255, 20, 0.1);
+  border-color: rgba(57, 255, 20, 0.25);
+  box-shadow: 0 0 12px rgba(57, 255, 20, 0.15), var(--shadow-md);
+}
+
+.error {
+  background: rgba(255, 23, 68, 0.1);
+  border-color: rgba(255, 23, 68, 0.25);
+  box-shadow: 0 0 12px rgba(255, 23, 68, 0.15), var(--shadow-md);
+}
+
+.info {
+  background: rgba(100, 181, 246, 0.1);
+  border-color: rgba(100, 181, 246, 0.25);
+  box-shadow: var(--shadow-md);
+}
+
+.warning {
+  background: rgba(255, 184, 0, 0.1);
+  border-color: rgba(255, 184, 0, 0.25);
+  box-shadow: var(--shadow-md);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.success .icon { color: var(--color-success); }
+.error   .icon { color: var(--color-error); }
+.info    .icon { color: var(--color-info); }
+.warning .icon { color: var(--color-warning); }
+
+.message {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.close {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  transition: color var(--transition-fast), transform var(--transition-fast);
+  padding: 0;
+}
+
+.close:hover {
+  color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  border-radius: var(--radius-xs);
+}
+
+@keyframes toast-in {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .container {
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    left: var(--spacing-lg);
+    max-width: none;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: fade-in 0.2s ease-out; }
+}

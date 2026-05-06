@@ -1,8 +1,12 @@
 .container {
   width: 100%;
+  position: relative;
 }
 
 .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: var(--spacing-lg);
 }
 
@@ -11,6 +15,15 @@
   font-size: var(--text-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
+}
+
+.multiplierBadge {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
+  animation: fade-in 0.2s ease-out;
 }
 
 .body {
@@ -23,6 +36,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  transition: opacity var(--transition-fast);
+}
+
+.inputRowError .inputGroup {
+  animation: input-shake 0.35s ease-out;
 }
 
 .inputLabel {
@@ -52,19 +70,86 @@
   font-size: var(--text-lg);
 }
 
+/* Action area */
+.actionArea {
+  display: flex;
+  flex-direction: column;
+}
+
 .betButton {
   width: 100%;
   justify-content: center;
   letter-spacing: 0.08em;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.betButtonActive {
+  animation: bet-pulse 2s ease-in-out infinite;
+}
+
+/* Cashout button: background transitions from orange to red via CSS custom property */
+.cashoutButton {
+  width: 100%;
+  justify-content: center;
+  letter-spacing: 0.05em;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) calc(100% - calc(var(--cashout-danger, 0) * 100%)), var(--color-error) calc(var(--cashout-danger, 0) * 100%)),
+    color-mix(in srgb, var(--color-primary-dark) calc(100% - calc(var(--cashout-danger, 0) * 100%)), #c0002e calc(var(--cashout-danger, 0) * 100%))
+  ) !important;
+  transition: background var(--transition-fast), transform var(--transition-fast) !important;
+}
+
+.cashoutButton:disabled {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--color-text-tertiary) !important;
+  font-size: var(--text-sm);
+  letter-spacing: 0.03em;
+}
+
+/* Gain popup */
+.gainPopup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
+  text-shadow: 0 0 12px rgba(57, 255, 20, 0.7);
+  pointer-events: none;
+  animation: ascend 1.5s ease-out forwards;
+  white-space: nowrap;
+  z-index: var(--z-dropdown);
+}
+
+/* Keyframes */
+@keyframes bet-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 107, 53, 0); }
+  50%       { box-shadow: var(--shadow-glow); }
+}
+
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  20%  { transform: translateX(-5px); }
+  40%  { transform: translateX(5px); }
+  60%  { transform: translateX(-4px); }
+  80%  { transform: translateX(4px); }
 }
 
 @media (max-width: 480px) {
   .inputGroup {
     flex-wrap: wrap;
   }
-
   .amountInput {
     order: -1;
     width: 100%;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .betButtonActive { animation: none; }
+  .gainPopup { animation: fade-in 0.3s ease-out; }
+  .inputRowError .inputGroup { animation: none; }
 }

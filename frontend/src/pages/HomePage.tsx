@@ -2,28 +2,26 @@ import { Button } from '../components/Button/Button';
 import { WalletBadge } from '../components/WalletBadge/WalletBadge';
 import { MultiplierDisplay } from '../components/MultiplierDisplay/MultiplierDisplay';
 import { BetPanel } from '../components/BetPanel/BetPanel';
-import { BetHistoryCard, type BetHistoryEntry } from '../components/BetHistoryCard/BetHistoryCard';
+import { BetHistoryCard } from '../components/BetHistoryCard/BetHistoryCard';
+import { Toast } from '../components/Toast/Toast';
 import { useAuth } from '../hooks/useAuth';
+import { useGameState } from '../hooks/useGameState';
+import { useBetHistory } from '../hooks/useBetHistory';
+import { useToast } from '../hooks/useToast';
 import styles from './HomePage.module.css';
-
-const MOCK_HISTORY: BetHistoryEntry[] = [
-  { id: 1, multiplier: 5.67, amount: 20, profit: 93.40, won: true },
-  { id: 2, multiplier: 2.34, amount: 20, profit: 26.80, won: true },
-  { id: 3, multiplier: 1.00, amount: 10, profit: -10.00, won: false },
-  { id: 4, multiplier: 3.12, amount: 25, profit: 53.00, won: true },
-  { id: 5, multiplier: 8.90, amount: 15, profit: 118.50, won: true },
-  { id: 6, multiplier: 1.00, amount: 30, profit: -30.00, won: false },
-];
 
 export function HomePage() {
   const { user, logout } = useAuth();
+  const game = useGameState();
+  const { entries, isLoading: historyLoading } = useBetHistory();
+  const { toasts, addToast, dismiss } = useToast();
 
   return (
     <div className={styles.page}>
       <nav className={styles.navbar}>
         <span className={styles.brand}>CRASH</span>
         <div className={styles.navRight}>
-          <WalletBadge balance={1250.00} />
+          <WalletBadge />
           <div className={styles.userInfo}>
             <span className={styles.username}>{user?.username}</span>
             <span className={styles.email}>{user?.email}</span>
@@ -37,14 +35,24 @@ export function HomePage() {
       <main className={styles.main}>
         <div className={styles.gameLayout}>
           <div className={styles.leftColumn}>
-            <MultiplierDisplay value={12.54} status="running" />
-            <BetPanel />
+            <MultiplierDisplay
+              value={game.multiplier}
+              status={game.status}
+              bettingEndsAt={game.bettingEndsAt}
+            />
+            <BetPanel
+              gameStatus={game.status}
+              multiplier={game.multiplier}
+              onToast={addToast}
+            />
           </div>
           <div className={styles.rightColumn}>
-            <BetHistoryCard entries={MOCK_HISTORY} />
+            <BetHistoryCard entries={entries} isLoading={historyLoading} />
           </div>
         </div>
       </main>
+
+      <Toast toasts={toasts} onDismiss={dismiss} />
     </div>
   );
 }
