@@ -43,3 +43,15 @@ export class InvalidBetAmountError extends GameDomainError {
     super("INVALID_BET_AMOUNT", "Aposta deve ser entre R$ 1,00 e R$ 1.000,00.");
   }
 }
+
+export class InsufficientFundsError extends GameDomainError {
+  constructor() {
+    super("INSUFFICIENT_FUNDS", "Saldo insuficiente para realizar a aposta.");
+  }
+}
+
+export class RoundNotFoundError extends GameDomainError {
+  constructor() {
+    super("ROUND_NOT_FOUND", "Rodada não encontrada.");
+  }
+}

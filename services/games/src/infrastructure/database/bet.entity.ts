@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -39,5 +40,6 @@ export class BetEntity {
   placedAt!: Date;
 
   @ManyToOne(() => RoundEntity)
+  @JoinColumn({ name: "round_id" })
   round!: RoundEntity;
 }

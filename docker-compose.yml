@@ -83,7 +83,7 @@ services:
     build:
       context: ./services/games
       dockerfile: Dockerfile
-    command: bun run --watch src/main.ts
+    command: sh -c "bun run migration:run && bun run --watch src/main.ts"
     ports:
       - "4001:4001"
     env_file:

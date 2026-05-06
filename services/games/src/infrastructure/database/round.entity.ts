@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import type { BetEntity } from "./bet.entity";
 
 export type RoundStatus = "betting" | "running" | "crashed";
 
@@ -37,4 +39,6 @@ export class RoundEntity {
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt!: Date;
 
+  @OneToMany("BetEntity", "round")
+  bets!: BetEntity[];
 }
