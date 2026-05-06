@@ -1,0 +1,5 @@
+* text=auto
+
+# Shell scripts must always use LF (Unix line endings) or Docker breaks
+*.sh text eol=lf
+Dockerfile text eol=lf

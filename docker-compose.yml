@@ -12,10 +12,11 @@ services:
       - postgres_data:/var/lib/postgresql
       - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgres && psql -U admin -d postgres -tAc \"SELECT COUNT(*) FROM pg_database WHERE datname IN ('games','wallets')\" | grep -q 2"]
       interval: 5s
-      timeout: 5s
-      retries: 10
+      timeout: 10s
+      retries: 20
+      start_period: 10s
 
   rabbitmq:
     image: rabbitmq:4.2.4-management-alpine
@@ -82,10 +83,13 @@ services:
     build:
       context: ./services/games
       dockerfile: Dockerfile
+    command: bun run --watch src/main.ts
     ports:
       - "4001:4001"
     env_file:
       - ./services/games/.env
+    volumes:
+      - ./services/games/src:/app/src
     depends_on:
       postgres:
         condition: service_healthy
@@ -102,10 +106,13 @@ services:
     build:
       context: ./services/wallets
       dockerfile: Dockerfile
+    command: sh -c "bun run migration:run && bun run --watch src/main.ts"
     ports:
       - "4002:4002"
     env_file:
       - ./services/wallets/.env
+    volumes:
+      - ./services/wallets/src:/app/src
     depends_on:
       postgres:
         condition: service_healthy

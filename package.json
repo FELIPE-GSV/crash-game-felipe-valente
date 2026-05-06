@@ -7,8 +7,9 @@
     "frontend"
   ],
   "scripts": {
-    "docker:up": "docker compose up",
+    "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
+    "docker:fresh": "docker compose down -v && docker compose up",
     "docker:prune": "docker compose down -v --rmi all --remove-orphans && docker volume prune -f"
   },
   "devDependencies": {
