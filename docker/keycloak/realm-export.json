@@ -8,7 +8,7 @@
   "accessTokenLifespan": 3600,
   "clients": [
     {
-      "clientId": "crash-game-client",
+      "clientId": "crash-game-frontend",
       "name": "Crash Game Frontend",
       "enabled": true,
       "publicClient": true,

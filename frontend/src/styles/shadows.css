@@ -1,0 +1,8 @@
+.shadow-sm       { box-shadow: var(--shadow-sm); }
+.shadow-md       { box-shadow: var(--shadow-md); }
+.shadow-lg       { box-shadow: var(--shadow-lg); }
+.shadow-glow     { box-shadow: var(--shadow-glow); }
+.shadow-glow-gold{ box-shadow: var(--shadow-glow-gold); }
+.shadow-glow-green{ box-shadow: var(--shadow-glow-green); }
+.shadow-glow-red { box-shadow: var(--shadow-glow-red); }
+.shadow-inset    { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4); }
