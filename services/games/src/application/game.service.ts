@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger, Optional } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
+import { GameGateway } from "../infrastructure/websocket/game.gateway";
 import { firstValueFrom, timeout } from "rxjs";
 
 import { Round } from "../domain/round";
@@ -29,6 +30,7 @@ export class GameService {
     @Inject(ROUND_REPOSITORY) private readonly roundRepo: RoundRepository,
     @Inject(BET_REPOSITORY) private readonly betRepo: BetRepository,
     @Optional() @Inject(WALLET_CLIENT) private readonly walletClient: ClientProxy | null,
+    @Optional() private readonly gateway: GameGateway | null,
   ) {}
 
   async createRound(): Promise<Round> {
@@ -94,6 +96,13 @@ export class GameService {
     }
 
     await this.betRepo.save(bet);
+
+    this.gateway?.emitBetPlaced({
+      roundId: round.id,
+      playerId,
+      amountCents,
+    });
+
     return bet;
   }
 
@@ -126,6 +135,14 @@ export class GameService {
     }
 
     await this.betRepo.save(bet);
+
+    this.gateway?.emitBetCashedOut({
+      roundId: round.id,
+      playerId,
+      multiplier,
+      payoutCents: Number(bet.payout!.toCents()),
+    });
+
     return bet;
   }
 

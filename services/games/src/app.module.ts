@@ -12,6 +12,7 @@ import { RoundTypeOrmRepository } from "./infrastructure/database/round.typeorm.
 import { BetTypeOrmRepository } from "./infrastructure/database/bet.typeorm.repository";
 import { JwtStrategy } from "./infrastructure/auth/jwt.strategy";
 import { GameLoopService } from "./infrastructure/scheduler/game-loop.service";
+import { GameGateway } from "./infrastructure/websocket/game.gateway";
 
 import { ROUND_REPOSITORY } from "./application/round.repository";
 import { BET_REPOSITORY } from "./application/bet.repository";
@@ -45,6 +46,7 @@ import { DomainErrorFilter } from "./presentation/filters/domain-error.filter";
     GameService,
     JwtStrategy,
     GameLoopService,
+    GameGateway,
     { provide: ROUND_REPOSITORY, useClass: RoundTypeOrmRepository },
     { provide: BET_REPOSITORY, useClass: BetTypeOrmRepository },
     { provide: APP_FILTER, useClass: DomainErrorFilter },
