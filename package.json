@@ -10,7 +10,16 @@
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
     "docker:fresh": "docker compose down -v && docker compose up",
-    "docker:prune": "docker compose down -v --rmi all --remove-orphans && docker volume prune -f"
+    "docker:prune": "docker compose down -v --rmi all --remove-orphans && docker volume prune -f",
+
+    "test:games:unit":   "bun --filter @crash/games test",
+    "test:games:e2e":    "bun --filter @crash/games test:e2e",
+    "test:wallets:unit": "bun --filter @crash/wallets test",
+    "test:wallets:e2e":  "bun --filter @crash/wallets test:e2e",
+
+    "test:unit": "bun run test:games:unit && bun run test:wallets:unit",
+    "test:e2e":  "bun run test:games:e2e && bun run test:wallets:e2e",
+    "test":      "bun run test:unit && bun run test:e2e"
   },
   "devDependencies": {
     "bun-types": "latest"

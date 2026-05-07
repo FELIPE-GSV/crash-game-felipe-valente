@@ -73,7 +73,7 @@ export class GameService {
     return round;
   }
 
-  async placeBet(playerId: string, amountCents: number): Promise<Bet> {
+  async placeBet(playerId: string, amountCents: number, username = playerId): Promise<Bet> {
     const round = await this.roundRepo.findCurrent();
     if (!round || round.status !== "betting") {
       throw new RoundNotInBettingPhaseError();
@@ -100,13 +100,14 @@ export class GameService {
     this.gateway?.emitBetPlaced({
       roundId: round.id,
       playerId,
+      username,
       amountCents,
     });
 
     return bet;
   }
 
-  async cashout(playerId: string): Promise<Bet> {
+  async cashout(playerId: string, username = playerId): Promise<Bet> {
     const round = await this.roundRepo.findCurrent();
     if (!round || round.status !== "running") {
       throw new RoundNotRunningError();
@@ -139,6 +140,7 @@ export class GameService {
     this.gateway?.emitBetCashedOut({
       roundId: round.id,
       playerId,
+      username,
       multiplier,
       payoutCents: Number(bet.payout!.toCents()),
     });

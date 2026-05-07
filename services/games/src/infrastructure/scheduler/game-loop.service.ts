@@ -71,6 +71,7 @@ export class GameLoopService implements OnModuleInit {
       roundId: round.id,
       crashPoint: round.crashPoint,
       crashedAt: new Date().toISOString(),
+      serverSeed: round.serverSeed,
     });
 
     await this.sleep(CRASH_COOLDOWN_MS);

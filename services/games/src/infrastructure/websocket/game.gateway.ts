@@ -18,17 +18,18 @@ export class GameGateway {
     this.server.emit("round:tick", payload);
   }
 
-  emitRoundCrashed(payload: { roundId: string; crashPoint: number; crashedAt: string }): void {
+  emitRoundCrashed(payload: { roundId: string; crashPoint: number; crashedAt: string; serverSeed: string }): void {
     this.server.emit("round:crashed", payload);
   }
 
-  emitBetPlaced(payload: { roundId: string; playerId: string; amountCents: number }): void {
+  emitBetPlaced(payload: { roundId: string; playerId: string; username: string; amountCents: number }): void {
     this.server.emit("bet:placed", payload);
   }
 
   emitBetCashedOut(payload: {
     roundId: string;
     playerId: string;
+    username: string;
     multiplier: number;
     payoutCents: number;
   }): void {

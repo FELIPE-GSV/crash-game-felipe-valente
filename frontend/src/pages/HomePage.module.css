@@ -140,6 +140,9 @@
   max-width: 340px;
   position: sticky;
   top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
 
 /* ---- responsive ---- */

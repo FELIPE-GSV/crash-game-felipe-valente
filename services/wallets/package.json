@@ -35,6 +35,7 @@
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
+    "@nestjs/testing": "^11.1.19",
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.11.10",
     "bun-types": "latest",

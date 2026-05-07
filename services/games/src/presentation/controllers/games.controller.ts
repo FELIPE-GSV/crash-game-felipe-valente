@@ -19,7 +19,7 @@ import {
 
 import { GameService } from "../../application/game.service";
 import { JwtAuthGuard } from "../../infrastructure/auth/jwt-auth.guard";
-import { CurrentPlayer } from "../../infrastructure/auth/current-player.decorator";
+import { CurrentPlayer, CurrentUsername } from "../../infrastructure/auth/current-player.decorator";
 
 import { PlaceBetDto } from "../dtos/place-bet.dto";
 import { RoundResponseDto } from "../dtos/round-response.dto";
@@ -104,9 +104,10 @@ export class BetsController {
   @ApiOkResponse({ type: BetResponseDto })
   async placeBet(
     @CurrentPlayer() playerId: string,
+    @CurrentUsername() username: string,
     @Body() dto: PlaceBetDto,
   ): Promise<BetResponseDto> {
-    const bet = await this.gameService.placeBet(playerId, dto.amount);
+    const bet = await this.gameService.placeBet(playerId, dto.amount, username);
     return BetResponseDto.fromDomain(bet);
   }
 
@@ -116,8 +117,11 @@ export class BetsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Sacar no multiplicador atual" })
   @ApiOkResponse({ type: BetResponseDto })
-  async cashout(@CurrentPlayer() playerId: string): Promise<BetResponseDto> {
-    const bet = await this.gameService.cashout(playerId);
+  async cashout(
+    @CurrentPlayer() playerId: string,
+    @CurrentUsername() username: string,
+  ): Promise<BetResponseDto> {
+    const bet = await this.gameService.cashout(playerId, username);
     return BetResponseDto.fromDomain(bet);
   }
 }

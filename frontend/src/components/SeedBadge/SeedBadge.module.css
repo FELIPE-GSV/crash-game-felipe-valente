@@ -1,0 +1,124 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-stroke-glass);
+  transition: border-color var(--transition-base), background var(--transition-base);
+}
+
+.wrapperRevealed {
+  background: rgba(57, 255, 20, 0.05);
+  border-color: rgba(57, 255, 20, 0.25);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.lockIcon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.wrapperRevealed .lockIcon {
+  color: var(--color-success);
+  filter: drop-shadow(0 0 4px rgba(57, 255, 20, 0.5));
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.wrapperRevealed .label {
+  color: var(--color-success);
+}
+
+.hash {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.copyBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--color-stroke-glass);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.copyBtn svg { width: 12px; height: 12px; }
+
+.copyBtn:hover {
+  background: rgba(255, 107, 53, 0.1);
+  border-color: rgba(255, 107, 53, 0.4);
+  color: var(--color-primary-light);
+}
+
+.copyBtn:active { transform: scale(0.95); }
+
+/* Verify row (only visible after crash) */
+.verifyRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.verifyLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.formula {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seedValue {
+  color: var(--color-success);
+}
+
+@media (max-width: 768px) {
+  .content { flex-direction: column; align-items: flex-start; gap: 2px; }
+}

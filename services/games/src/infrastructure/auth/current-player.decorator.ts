@@ -7,3 +7,10 @@ export const CurrentPlayer = createParamDecorator(
     return request.user.sub;
   },
 );
+
+export const CurrentUsername = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext): string => {
+    const request = ctx.switchToHttp().getRequest<{ user: KeycloakJwtPayload }>();
+    return request.user.preferred_username ?? request.user.sub;
+  },
+);

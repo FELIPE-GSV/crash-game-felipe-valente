@@ -3,12 +3,15 @@ import { WalletBadge } from '../components/WalletBadge/WalletBadge';
 import { MultiplierDisplay } from '../components/MultiplierDisplay/MultiplierDisplay';
 import { BetPanel } from '../components/BetPanel/BetPanel';
 import { BetHistoryCard } from '../components/BetHistoryCard/BetHistoryCard';
+import { LiveBetsFeed } from '../components/LiveBetsFeed/LiveBetsFeed';
 import { CrashHistoryStrip } from '../components/CrashHistoryStrip/CrashHistoryStrip';
+import { SeedBadge } from '../components/SeedBadge/SeedBadge';
 import { Toast } from '../components/Toast/Toast';
 import { useAuth } from '../hooks/useAuth';
 import { useGameState } from '../hooks/useGameState';
 import { useBetHistory } from '../hooks/useBetHistory';
 import { useCrashHistory } from '../hooks/useCrashHistory';
+import { useLiveBets } from '../hooks/useLiveBets';
 import { useToast } from '../hooks/useToast';
 import styles from './HomePage.module.css';
 
@@ -17,6 +20,7 @@ export function HomePage() {
   const game = useGameState();
   const { entries, isLoading: historyLoading } = useBetHistory();
   const crashHistory = useCrashHistory();
+  const liveBets = useLiveBets(game.roundId);
   const { toasts, addToast, dismiss } = useToast();
 
   return (
@@ -62,6 +66,11 @@ export function HomePage() {
                 status={game.status}
                 bettingEndsAt={game.bettingEndsAt}
               />
+              <SeedBadge
+                hash={game.serverSeedHash}
+                serverSeed={game.serverSeed}
+                status={game.status}
+              />
               <BetPanel
                 gameStatus={game.status}
                 multiplier={game.multiplier}
@@ -70,6 +79,7 @@ export function HomePage() {
               />
             </div>
             <div className={styles.rightColumn}>
+              <LiveBetsFeed entries={liveBets} />
               <BetHistoryCard entries={entries} isLoading={historyLoading} />
             </div>
           </div>

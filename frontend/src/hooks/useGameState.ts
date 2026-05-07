@@ -9,6 +9,8 @@ export interface GameState {
   roundId: string | null;
   crashPoint: number | null;
   bettingEndsAt: string | null;
+  serverSeedHash: string | null;
+  serverSeed: string | null;
 }
 
 const INITIAL: GameState = {
@@ -17,6 +19,8 @@ const INITIAL: GameState = {
   roundId: null,
   crashPoint: null,
   bettingEndsAt: null,
+  serverSeedHash: null,
+  serverSeed: null,
 };
 
 export function useGameState(): GameState {
@@ -34,6 +38,8 @@ export function useGameState(): GameState {
         roundId: round.id,
         crashPoint: round.crashPoint,
         bettingEndsAt: round.bettingEndsAt ?? null,
+        serverSeedHash: round.serverSeedHash ?? null,
+        serverSeed: null,
       });
     } catch {
       // keep current state on error
@@ -47,8 +53,8 @@ export function useGameState(): GameState {
   useEffect(() => {
     if (!socket) return;
 
-    function onNew(data: { roundId: string; bettingEndsAt: string }) {
-      setState({ status: 'waiting', multiplier: 1.0, roundId: data.roundId, crashPoint: null, bettingEndsAt: data.bettingEndsAt });
+    function onNew(data: { roundId: string; bettingEndsAt: string; serverSeedHash: string }) {
+      setState({ status: 'waiting', multiplier: 1.0, roundId: data.roundId, crashPoint: null, bettingEndsAt: data.bettingEndsAt, serverSeedHash: data.serverSeedHash, serverSeed: null });
     }
     function onStarted(data: { roundId: string }) {
       setState((prev) => ({ ...prev, status: 'running', multiplier: 1.0, roundId: data.roundId, bettingEndsAt: null }));
@@ -56,11 +62,11 @@ export function useGameState(): GameState {
     function onTick(data: { multiplier: number }) {
       setState((prev) => ({ ...prev, multiplier: data.multiplier }));
     }
-    function onCrashed(data: { crashPoint: number }) {
-      setState((prev) => ({ ...prev, status: 'crashed', multiplier: data.crashPoint, crashPoint: data.crashPoint }));
+    function onCrashed(data: { crashPoint: number; serverSeed?: string }) {
+      setState((prev) => ({ ...prev, status: 'crashed', multiplier: data.crashPoint, crashPoint: data.crashPoint, serverSeed: data.serverSeed ?? null }));
       // reset to waiting after 3s cooldown
       setTimeout(() => {
-        setState((prev) => (prev.status === 'crashed' ? { ...prev, status: 'waiting', multiplier: 1.0 } : prev));
+        setState((prev) => (prev.status === 'crashed' ? { ...prev, status: 'waiting', multiplier: 1.0, serverSeed: null } : prev));
       }, 3000);
     }
 
