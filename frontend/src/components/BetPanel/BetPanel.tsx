@@ -17,12 +17,14 @@ interface BetPanelProps {
   roundId: string | null;
   className?: string;
   onToast?: (msg: string, type: 'success' | 'error' | 'info') => void;
+  onBetSound?: () => void;
+  onCashoutSound?: () => void;
 }
 
 const MIN_AMOUNT = 1;
 const MAX_AMOUNT = 1000;
 
-export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }: BetPanelProps) {
+export function BetPanel({ gameStatus, multiplier, roundId, className, onToast, onBetSound, onCashoutSound }: BetPanelProps) {
   const socket = useSocket();
   const { user } = useAuth();
   const { updateBalance } = useWalletContext();
@@ -100,6 +102,7 @@ export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }
       await placeBet(val);
       // Atualização otimista: débito imediato enquanto aguarda confirmação do servidor
       updateBalance(-val);
+      onBetSound?.();
       onToast?.(`Aposta de R$ ${val.toFixed(2)} feita!`, 'info');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? '';
@@ -124,6 +127,7 @@ export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }
       updateBalance(payout);
       setCashoutGain(gained);
       setTimeout(() => setCashoutGain(null), 1500);
+      onCashoutSound?.();
       onToast?.(`Sacou R$ ${payout.toFixed(2)} em ${bet.cashoutMultiplier?.toFixed(2) ?? multiplier.toFixed(2)}×!`, 'success');
     } catch {
       onToast?.('Erro ao sacar. Tente novamente.', 'error');

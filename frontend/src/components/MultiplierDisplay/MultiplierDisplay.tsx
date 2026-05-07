@@ -9,6 +9,7 @@ interface MultiplierDisplayProps {
   value: number;
   status: MultiplierStatus;
   bettingEndsAt?: string | null;
+  onUrgentBeep?: () => void;
   className?: string;
 }
 
@@ -38,25 +39,32 @@ function multiplierToProgress(m: number): number {
   return 1 - Math.pow(1 - linear, 2.2);
 }
 
-function BettingTimer({ endsAt }: { endsAt: string }) {
+function BettingTimer({ endsAt, onUrgentBeep }: { endsAt: string; onUrgentBeep?: () => void }) {
   const [progress, setProgress] = useState(100);
   const [urgent, setUrgent] = useState(false);
   const rafRef = useRef<number | null>(null);
+  const beepedRef = useRef(false);
 
   useEffect(() => {
     const end = new Date(endsAt).getTime();
     const TOTAL = 10_000;
+    beepedRef.current = false;
 
     function tick() {
       const remaining = end - Date.now();
       const pct = Math.max(0, Math.min(100, (remaining / TOTAL) * 100));
       setProgress(pct);
-      setUrgent(remaining <= 3000);
+      const isUrgent = remaining <= 3000;
+      setUrgent(isUrgent);
+      if (isUrgent && !beepedRef.current) {
+        beepedRef.current = true;
+        onUrgentBeep?.();
+      }
       if (remaining > 0) rafRef.current = requestAnimationFrame(tick);
     }
     rafRef.current = requestAnimationFrame(tick);
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [endsAt]);
+  }, [endsAt, onUrgentBeep]);
 
   return (
     <div className={styles.timerBar} role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
@@ -208,7 +216,7 @@ function CrashImpact({ progress }: { progress: number }) {
   );
 }
 
-export function MultiplierDisplay({ value, status, bettingEndsAt, className }: MultiplierDisplayProps) {
+export function MultiplierDisplay({ value, status, bettingEndsAt, onUrgentBeep, className }: MultiplierDisplayProps) {
   const tier = getMultiplierTier(value);
   const progress = status === 'running' ? multiplierToProgress(value) : status === 'crashed' ? 1 : 0;
 
@@ -244,7 +252,7 @@ export function MultiplierDisplay({ value, status, bettingEndsAt, className }: M
       </div>
 
       {status === 'waiting' && bettingEndsAt && (
-        <BettingTimer endsAt={bettingEndsAt} />
+        <BettingTimer endsAt={bettingEndsAt} onUrgentBeep={onUrgentBeep} />
       )}
 
       {status === 'crashed' && (

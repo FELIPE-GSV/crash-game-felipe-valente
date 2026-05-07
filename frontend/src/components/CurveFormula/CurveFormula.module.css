@@ -1,0 +1,114 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-stroke-glass);
+  transition: border-color var(--transition-base);
+}
+
+.wrapperCrashed {
+  border-color: rgba(255, 23, 68, 0.25);
+  background: rgba(255, 23, 68, 0.04);
+}
+
+/* Formula block */
+.formula {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.math {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-style: normal;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.math em {
+  color: var(--color-primary-light);
+  font-style: italic;
+}
+
+.sup {
+  font-size: 9px;
+  vertical-align: super;
+  letter-spacing: 0.01em;
+}
+
+/* Values block */
+.values {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.valueItem {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.varLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.varValue {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: var(--font-weight-bold);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+.tValue {
+  color: var(--color-text-secondary);
+}
+
+.multiplierValue {
+  color: var(--color-primary-light);
+  text-shadow: 0 0 8px rgba(255, 107, 53, 0.35);
+}
+
+.crashed {
+  color: var(--color-error);
+  text-shadow: 0 0 8px rgba(255, 23, 68, 0.4);
+}
+
+.unit {
+  font-size: 11px;
+  font-weight: var(--font-weight-regular);
+  opacity: 0.7;
+  margin-left: 1px;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-stroke-glass);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .label { display: none; }
+  .wrapper { gap: var(--spacing-sm); }
+}

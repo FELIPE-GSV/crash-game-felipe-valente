@@ -84,6 +84,36 @@
   gap: var(--spacing-xl);
 }
 
+.muteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-stroke-glass);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.muteBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.muteBtn:hover {
+  background: rgba(255, 107, 53, 0.10);
+  border-color: rgba(255, 107, 53, 0.35);
+  color: var(--color-primary-light);
+}
+
+.muteBtn:active {
+  transform: scale(0.95);
+}
+
 .userInfo {
   display: flex;
   flex-direction: column;
