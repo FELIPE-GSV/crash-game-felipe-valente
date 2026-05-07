@@ -11,19 +11,48 @@
 }
 
 .title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   font-family: var(--font-heading);
   font-size: var(--text-lg);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
+  letter-spacing: 0.04em;
+}
+
+.titleIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-primary);
+  filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.6));
 }
 
 .multiplierBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(57, 255, 20, 0.10);
+  border: 1px solid rgba(57, 255, 20, 0.45);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: var(--font-weight-bold);
   color: var(--color-success);
   text-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
-  animation: fade-in 0.2s ease-out;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  animation: scale-up 0.2s ease-out;
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  animation: flame-flicker 1s ease-in-out infinite;
 }
 
 .body {
@@ -70,6 +99,44 @@
   font-size: var(--text-lg);
 }
 
+.quickRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+.quickChip {
+  height: 32px;
+  padding: 0 var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-stroke-glass);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: var(--font-weight-bold);
+  font-feature-settings: "tnum";
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.quickChip:hover:not(:disabled) {
+  background: rgba(255, 107, 53, 0.12);
+  border-color: rgba(255, 107, 53, 0.45);
+  color: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+.quickChip:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.quickChip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Action area */
 .actionArea {
   display: flex;
@@ -78,26 +145,69 @@
 
 .betButton {
   width: 100%;
+  min-height: 56px;
   justify-content: center;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-base);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+}
+
+.betButton:not(:disabled):active {
+  transform: scale(0.97);
 }
 
 .betButtonActive {
   animation: bet-pulse 2s ease-in-out infinite;
 }
 
+.btnRocket,
+.btnIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btnRocket {
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+}
+
+.dots {
+  display: inline-block;
+  margin-left: 4px;
+  letter-spacing: 0.2em;
+  animation: flame-flicker 1.2s ease-in-out infinite;
+}
+
 /* Cashout button: background transitions from orange to red via CSS custom property */
 .cashoutButton {
   width: 100%;
+  min-height: 56px;
   justify-content: center;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.10em;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-base);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--color-primary) calc(100% - calc(var(--cashout-danger, 0) * 100%)), var(--color-error) calc(var(--cashout-danger, 0) * 100%)),
-    color-mix(in srgb, var(--color-primary-dark) calc(100% - calc(var(--cashout-danger, 0) * 100%)), #c0002e calc(var(--cashout-danger, 0) * 100%))
+    color-mix(in srgb, var(--color-success) calc(100% - calc(var(--cashout-danger, 0) * 100%)), var(--color-error) calc(var(--cashout-danger, 0) * 100%)),
+    color-mix(in srgb, #1ECB00 calc(100% - calc(var(--cashout-danger, 0) * 100%)), #c0002e calc(var(--cashout-danger, 0) * 100%))
   ) !important;
-  transition: background var(--transition-fast), transform var(--transition-fast) !important;
+  box-shadow:
+    0 0 calc(20px + var(--cashout-danger, 0) * 30px)
+    color-mix(in srgb, rgba(57, 255, 20, 0.45) calc(100% - calc(var(--cashout-danger, 0) * 100%)), rgba(255, 23, 68, 0.55) calc(var(--cashout-danger, 0) * 100%)) !important;
+  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast) !important;
+}
+
+.cashoutButton:not(:disabled):active {
+  transform: scale(0.97);
 }
 
 .cashoutButton:disabled {

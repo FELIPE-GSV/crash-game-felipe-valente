@@ -5,9 +5,18 @@
   --color-primary-light: #FF8A57;
 
   /* ===== CORES DE FUNDO ===== */
-  --color-bg-primary: #0F1419;
-  --color-bg-secondary: #2A1F1A;
+  --color-bg-primary: #0A0E13;
+  --color-bg-secondary: #141B26;
   --color-bg-tertiary: #1A2A4A;
+  --color-bg-elevated: #1B2433;
+  --color-bg-glass: rgba(20, 27, 38, 0.55);
+  --color-stroke-glass: rgba(255, 255, 255, 0.08);
+
+  /* ===== TIERS DE MULTIPLICADOR ===== */
+  --color-tier-low: #FF6B35;
+  --color-tier-mid: #FFD700;
+  --color-tier-high: #39FF14;
+  --color-tier-mythic: #A855F7;
 
   /* ===== CORES DE ACENTOS ===== */
   --color-success: #39FF14;
@@ -70,15 +79,23 @@
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-glass: 0 12px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-glow: 0 0 20px rgba(255, 107, 53, 0.4), 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow-gold: 0 0 20px rgba(212, 175, 55, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow-green: 0 0 12px rgba(57, 255, 20, 0.6);
-  --shadow-glow-red: 0 0 12px rgba(255, 23, 68, 0.6);
+  --shadow-glow-orange: 0 0 24px rgba(255, 107, 53, 0.35), 0 0 60px rgba(255, 107, 53, 0.18);
+  --shadow-glow-gold: 0 0 24px rgba(255, 215, 0, 0.40), 0 0 60px rgba(255, 215, 0, 0.20);
+  --shadow-glow-green: 0 0 24px rgba(57, 255, 20, 0.45), 0 0 70px rgba(57, 255, 20, 0.22);
+  --shadow-glow-purple: 0 0 24px rgba(168, 85, 247, 0.50), 0 0 80px rgba(168, 85, 247, 0.25);
+  --shadow-glow-red: 0 0 24px rgba(255, 23, 68, 0.55), 0 0 60px rgba(255, 23, 68, 0.25);
+
+  /* ===== EFEITOS GLASS ===== */
+  --blur-glass: blur(16px) saturate(140%);
 
   /* ===== TRANSIÇÕES ===== */
   --transition-fast: 0.2s ease-in-out;
   --transition-base: 0.3s ease-in-out;
   --transition-slow: 0.5s ease-in-out;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ===== Z-INDEX ===== */
   --z-base: 0;

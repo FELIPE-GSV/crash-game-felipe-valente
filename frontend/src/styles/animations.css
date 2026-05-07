@@ -46,6 +46,43 @@
   to { transform: rotate(360deg); }
 }
 
+/* ===== gamification keyframes ===== */
+@keyframes rocket-bob {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(0, -3px); }
+}
+
+@keyframes flame-flicker {
+  0%, 100% { opacity: 0.85; transform: scaleY(1); }
+  50%      { opacity: 1;    transform: scaleY(1.15); }
+}
+
+@keyframes star-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-200px, 0, 0); }
+}
+
+@keyframes star-drift-slow {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-100px, 0, 0); }
+}
+
+@keyframes pill-pop-in {
+  0%   { transform: translateX(-30px) scale(0.7); opacity: 0; }
+  60%  { transform: translateX(0) scale(1.08); opacity: 1; }
+  100% { transform: translateX(0) scale(1);    opacity: 1; }
+}
+
+@keyframes burst {
+  0%   { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes ring-expand {
+  0%   { transform: scale(0.4); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
 .animate-glow-pulse    { animation: glow-pulse 2s ease-in-out infinite; }
 .animate-ascend        { animation: ascend 0.8s ease-out; }
 .animate-crash-shake   { animation: crash-shake 0.5s ease-in-out; }

@@ -144,6 +144,10 @@ export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }
     setAmount((prev) => Math.min(MAX_AMOUNT, (parseFloat(prev) || 0) * 2).toFixed(2));
     setAmountError(null);
   }
+  function setQuick(value: number) {
+    setAmount(Math.min(MAX_AMOUNT, Math.max(MIN_AMOUNT, value)).toFixed(2));
+    setAmountError(null);
+  }
 
   const canBet = panelStatus === 'betting' && !isLoading;
   const canCashout = panelStatus === 'running' && !isLoading;
@@ -152,9 +156,17 @@ export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }
   return (
     <Card variant="highlighted" className={clsx(styles.container, className)}>
       <div className={styles.header}>
-        <span className={styles.title}>Apostar</span>
+        <span className={styles.title}>
+          <svg className={styles.titleIcon} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M11.5 2.4c.4.4 1.4 1.6 2.2 3.2 2 .3 3.4 1.7 3.7 3.7-1.6.8-2.8 1.8-3.2 2.2-.6.6-1.5 1.7-2 2.7l-.5 1.1c-.3.6-1 1-1.7 1l-2-.1c-.7 0-1-.3-1-1l-.1-2c0-.7.4-1.4 1-1.7l1.1-.5c1-.5 2.1-1.4 2.7-2 .4-.4 1.4-1.6 2.2-3.2-.7-1.5-2-2.7-3.5-3 .4-.5.7-.4 1.1-.4z M3.7 14.1l2.2 2.2c.3.3.3.8 0 1.1l-1.1 1.1a.7.7 0 0 1-1 0l-2.3-2.2a.7.7 0 0 1 0-1.1l1.1-1.1c.3-.3.8-.3 1.1 0z" />
+          </svg>
+          Apostar
+        </span>
         {panelStatus === 'running' && (
-          <span className={styles.multiplierBadge}>{multiplier.toFixed(2)}×</span>
+          <span className={styles.multiplierBadge} aria-live="polite">
+            <span className={styles.pulseDot} aria-hidden="true" />
+            {multiplier.toFixed(2)}×
+          </span>
         )}
       </div>
 
@@ -191,7 +203,21 @@ export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }
               size="sm"
               onClick={double}
               disabled={panelStatus !== 'betting'}
-            >Dobrar</Button>
+            >2×</Button>
+          </div>
+          <div className={styles.quickRow}>
+            {[5, 10, 25, 50, 100].map((v) => (
+              <button
+                key={v}
+                type="button"
+                className={styles.quickChip}
+                onClick={() => setQuick(v)}
+                disabled={panelStatus !== 'betting'}
+                aria-label={`Apostar ${v} reais`}
+              >
+                R$ {v}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -205,7 +231,16 @@ export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }
               disabled={!canBet}
               loading={isLoading && panelStatus === 'betting'}
             >
-              {panelStatus === 'waiting' ? 'AGUARDANDO INÍCIO...' : 'APOSTAR'}
+              {panelStatus === 'waiting' ? (
+                <>AGUARDANDO INÍCIO<span className={styles.dots}>…</span></>
+              ) : (
+                <>
+                  <svg className={styles.btnRocket} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M14 2c-2 0-4 1-6 3l-2 2-2 .5c-.5.1-.7.7-.4 1.1l1.5 2-1 1c-.3.3-.3.8 0 1.1l3 3c.3.3.8.3 1.1 0l1-1 2 1.5c.4.3 1 .1 1.1-.4L13 14l2-2c2-2 3-4 3-6 0-2-1-4-4-4zm-1 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/>
+                  </svg>
+                  APOSTAR
+                </>
+              )}
             </Button>
           )}
 
@@ -219,9 +254,16 @@ export function BetPanel({ gameStatus, multiplier, roundId, className, onToast }
               disabled={!canCashout}
               loading={isLoading && panelStatus === 'running'}
             >
-              {panelStatus === 'idle'
-                ? 'AGUARDANDO PRÓXIMA RODADA'
-                : `SACAR ${multiplier.toFixed(2)}×`}
+              {panelStatus === 'idle' ? (
+                'AGUARDANDO PRÓXIMA RODADA'
+              ) : (
+                <>
+                  <svg className={styles.btnIcon} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M10 2a2 2 0 0 1 2 2v6h3a1 1 0 0 1 .7 1.7l-5 5a1 1 0 0 1-1.4 0l-5-5A1 1 0 0 1 5 10h3V4a2 2 0 0 1 2-2z"/>
+                  </svg>
+                  SACAR {multiplier.toFixed(2)}×
+                </>
+              )}
             </Button>
           )}
         </div>

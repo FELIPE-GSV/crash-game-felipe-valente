@@ -3,29 +3,79 @@
   background: var(--color-bg-primary);
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle aurora behind everything (the "casino backdrop") */
+.aurora {
+  position: fixed;
+  inset: -10%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(50% 40% at 18% 12%, rgba(255, 107, 53, 0.18), transparent 60%),
+    radial-gradient(40% 35% at 85% 25%, rgba(168, 85, 247, 0.12), transparent 65%),
+    radial-gradient(60% 50% at 50% 110%, rgba(57, 255, 20, 0.10), transparent 60%);
+  filter: blur(20px);
 }
 
 /* ---- navbar ---- */
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-lg) var(--spacing-2xl);
-  background: var(--color-bg-secondary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 14, 19, 0.7);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border-bottom: 1px solid var(--color-stroke-glass);
   box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
+}
+
+.brandWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.brandIcon {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.65));
+  animation: rocket-bob 2.4s ease-in-out infinite;
 }
 
 .brand {
   font-family: var(--font-display);
   font-size: var(--text-3xl);
-  color: var(--color-primary);
-  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #FFD700 0%, #FF6B35 60%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-shadow: 0 0 16px rgba(255, 107, 53, 0.4);
+}
+
+.brandDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
+  animation: flame-flicker 1.4s ease-in-out infinite;
+}
+
+.brandTagline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 .navRight {
@@ -55,7 +105,18 @@
 /* ---- main ---- */
 .main {
   flex: 1;
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-xl) var(--spacing-2xl);
+  position: relative;
+  z-index: 1;
+}
+
+.stack {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  animation: fade-in 0.5s ease-out;
 }
 
 /* ---- game layout ---- */
@@ -63,9 +124,6 @@
   display: flex;
   gap: var(--spacing-xl);
   align-items: flex-start;
-  max-width: 1200px;
-  margin: 0 auto;
-  animation: fade-in 0.5s ease-out;
 }
 
 .leftColumn {
@@ -78,14 +136,30 @@
 
 .rightColumn {
   flex: 1;
-  min-width: 260px;
-  max-width: 320px;
+  min-width: 280px;
+  max-width: 340px;
+  position: sticky;
+  top: 96px;
 }
 
 /* ---- responsive ---- */
+@media (max-width: 1024px) {
+  .rightColumn {
+    position: static;
+    max-width: 100%;
+  }
+  .gameLayout {
+    flex-direction: column;
+  }
+  .rightColumn {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .navbar {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
     flex-wrap: wrap;
     gap: var(--spacing-sm);
   }
@@ -98,21 +172,19 @@
     display: none;
   }
 
+  .brandTagline { display: none; }
+
   .main {
-    padding: var(--spacing-lg);
-  }
-
-  .gameLayout {
-    flex-direction: column;
-  }
-
-  .rightColumn {
-    max-width: 100%;
-    width: 100%;
+    padding: var(--spacing-md);
   }
 }
 
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brandIcon,
+  .brandDot { animation: none; }
 }

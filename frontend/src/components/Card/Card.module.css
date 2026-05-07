@@ -1,9 +1,11 @@
 .card {
-  background: var(--color-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
+  background: var(--color-bg-glass);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--color-stroke-glass);
+  border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-glass);
   transition: all var(--transition-base);
   position: relative;
   overflow: hidden;
@@ -23,12 +25,16 @@
 .card:hover::before { left: 100%; }
 
 .elevated {
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, var(--color-bg-secondary) 100%);
-  border-color: rgba(255, 107, 53, 0.2);
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(255, 107, 53, 0.08), transparent 60%),
+    var(--color-bg-glass);
+  border-color: rgba(255, 107, 53, 0.18);
 }
 
 .highlighted {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-glow);
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, var(--color-bg-secondary) 100%);
+  border-color: rgba(255, 107, 53, 0.55);
+  box-shadow: var(--shadow-glass), var(--shadow-glow-orange);
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgba(255, 107, 53, 0.12), transparent 60%),
+    var(--color-bg-glass);
 }
